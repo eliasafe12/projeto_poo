@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
+from nicegui import ui
 
 class Produto():
     def __init__(self, nome, codigo, preco, quantidade):
@@ -14,6 +15,8 @@ class Produto():
 
     def getInformacoes(self): 
         return self.codigo, self.preco
+
+    def __str__(self): return f'Nome: {self.nome} - Código: {self.codigo} - Preço: R${self.preco}:.2f'
    
 class Movimentacao(ABC): # compra e venda
     def __init__(self, codigo, *args):
@@ -59,3 +62,36 @@ class Conta():
 
     def getInformacoes(self):
         return self.descricao, self.valor
+
+produtos = []
+def cadastrarProduto(nome, codigo, preco, quantidade):
+    produtos.append(Produto(nome, codigo, int(preco), int(quantidade)))
+    ui.notify('Produto Cadastrado!', type='positive', timeout=3000)
+
+def listarProdutos():
+    for i in produtos:
+        with ui.card():
+            ui.label(i.nome)
+
+with ui.header(elevated=True).style('background-color: #3874c8').classes('items-center justify-between'): # menu de cima
+    ui.label('LEET Empresas')
+    ui.button(on_click=lambda: right_drawer.toggle(), icon='menu').props('flat color=white')
+
+
+with ui.right_drawer(fixed=False).style('background-color: #ebf1fa').props('bordered') as right_drawer: # menu da direita
+    ui.label('Opções:')  
+    with ui.expansion('Produtos', icon='inventory_2').style('background-color: #00FFFF'): # não funciona ainda
+        for i in produtos:
+            ui.label(i.nome)
+    # ui.button(on_click=lambda: right_drawer.toggle(), icon='menu').props('flat color=white')
+
+with ui.row(): # para cadastrar produtos
+    ui.label('Cadastrar Produto')
+    nome = ui.input(label='Nome:').props('square outlined dense').classes('shadow-lg')
+    codigo = ui.input(label='Código:').props('square outlined dense').classes('shadow-lg')
+    preco = ui.input(label='Preço:').props('square outlined dense').classes('shadow-lg')
+    quantidade = ui.input(label='Quantidade:').props('square outlined dense').classes('shadow-lg')
+    ui.button('Cadastrar', on_click=lambda: cadastrarProduto(nome.value, codigo.value, preco.value, quantidade.value))
+
+
+ui.run()
