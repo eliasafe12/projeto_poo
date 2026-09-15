@@ -1,0 +1,1 @@
+# Para importar a classe pai de outros arquivos
